@@ -1586,6 +1586,12 @@ typedef struct ix86_args {
 				   be passed in SSE registers.  Otherwise 0.  */
   int call_abi;			/* Set to SYSV_ABI for sysv abi. Otherwise
  				   MS_ABI for ms abi.  */
+#ifdef __OS2__
+  int fpu_regno;		/* next available FPU register number */
+  int fpu_nregs;		/* # registers available for passing */
+  int ec_slots;			/* # eyecatcher slots left (see optlink specs) */
+  int optlink;			/* nonzero if optlink (vs. regparm) */
+#endif /* EMX */
 } CUMULATIVE_ARGS;
 
 /* Initialize a variable CUM of type CUMULATIVE_ARGS

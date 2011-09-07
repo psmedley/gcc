@@ -47,6 +47,12 @@ along with GCC; see the file COPYING3.  If not see
 #ifndef LIBSTDCXX_STATIC
 #define LIBSTDCXX_STATIC LIBSTDCXX
 #endif
+#ifdef LIBSTDCXX_STATIC                                                             /* bird */
+#define LIBSTDCXX_STATIC "-lstdc++"                                                 /* bird */
+#endif                                                                              /* bird */
+#ifdef LIBSTDCXX_PROFILE_STATIC                                                     /* bird */
+#define LIBSTDCXX_PROFILE_STATIC "-lstdc++"                                         /* bird */
+#endif                                                                              /* bird */
 
 void
 lang_specific_driver (int *in_argc, const char *const **in_argv,
@@ -99,6 +105,9 @@ lang_specific_driver (int *in_argc, const char *const **in_argv,
   /* True if we should add -shared-libgcc to the command-line.  */
   int shared_libgcc = 1;
 
+  /* True if we saw the '-static' option on the commandline. */                     /* bird */
+  int saw_static = 0;                                                               /* bird */
+                                                                                    /* bird */
   /* The total number of arguments with the new stuff.  */
   int argc;
 
@@ -200,9 +209,13 @@ lang_specific_driver (int *in_argc, const char *const **in_argv,
 		 cause a warning.  */
 	      library = -1;
 	    }
-	  else if (strcmp (argv[i], "-static-libgcc") == 0
-		   || strcmp (argv[i], "-static") == 0)
+	  else if (strcmp (argv[i], "-static-libgcc") == 0)                             /* bird */
 	    shared_libgcc = 0;
+          else if (strcmp (argv[i], "-static") == 0)                                /* bird */
+            {                                                                       /* bird */
+              saw_static = 1;                                                       /* bird */
+              shared_libgcc = 0;                                                    /* bird */
+            }                                                                       /* bird */
 	  else if (DEFAULT_WORD_SWITCH_TAKES_ARG (&argv[i][1]))
 	    i++;
 	  else

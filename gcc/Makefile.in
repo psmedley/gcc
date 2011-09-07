@@ -206,6 +206,9 @@ RANLIB_FLAGS = @ranlib_flags@
 # -------------------------------------------
 
 SHELL = @SHELL@
+# "mkdir cp; cp something cp" doesn't work ash on OS/2.
+CP = cp@host_exeext@
+
 # pwd command to use.  Allow user to override default by setting PWDCMD in
 # the environment to account for automounters.  The make variable must not
 # be called PWDCMD, otherwise the value set here is passed to make
@@ -933,6 +936,16 @@ BUILD_RTL = build/rtl.o build/read-rtl.o build/ggc-none.o build/vec.o \
 	    build/min-insn-modes.o build/gensupport.o build/print-rtl.o
 BUILD_ERRORS = build/errors.o
 
+# GCC-OS2: help
+# This gets linked into gcc if command-line help was enabled
+#CLH_LIBS = @gcc_clh_libs@
+# These definitions enables --help for gcc
+#CLH_CFLAGS = @gcc_clh_cflags@
+#CLH_GCC = @gcc_clh_gcc@
+#CLH_CPP = @gcc_clh_cpp@
+#CLH_G77 = @gcc_clh_g77@
+#CLH_GCJ = @gcc_clh_gcj@
+
 # Specify the directories to be searched for header files.
 # Both . and srcdir are used, in that order,
 # so that *config.h will be found in the compilation
@@ -1637,7 +1650,7 @@ $(SPECS): xgcc$(exeext)
 # compile libgcc2.a.
 # Also create gcc-cross, so that install-common will install properly.
 gcc-cross$(exeext): xgcc$(exeext)
-	cp xgcc$(exeext) gcc-cross$(exeext)
+	$(CP) xgcc$(exeext) gcc-cross$(exeext)
 
 dummy-checksum.o : dummy-checksum.c
 
@@ -1653,6 +1666,16 @@ cc1-checksum.o : cc1-checksum.c
 cc1$(exeext): $(C_OBJS) cc1-checksum.o $(BACKEND) $(LIBDEPS)
 	$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o $@ $(C_OBJS) cc1-checksum.o \
 	  $(BACKEND) $(LIBS) $(BACKENDLIBS)
+
+# GCC-OS2: help.
+clh.o: clh.c $(CONFIG_H)
+	$(CC) $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) -c $(srcdir)/clh.c
+
+clh_gcc.c: $(srcdir)/doc/invoke.texi $(srcdir)/mkoptdesc.sh
+	$(srcdir)/mkoptdesc.sh $(srcdir)/doc/invoke.texi gcc > clh_gcc.c
+
+clh_cpp.c: $(srcdir)/doc/invoke.texi $(srcdir)/mkoptdesc.sh
+	$(srcdir)/mkoptdesc.sh $(srcdir)/doc/invoke.texi cpp > clh_cpp.c
 
 #
 # Build libgcc.a.
@@ -3522,7 +3545,7 @@ SYSCALLS.c.X: $(srcdir)/sys-types.h $(srcdir)/sys-protos.h $(GCC_PASSES) \
 
 test-protoize-simple: ./protoize ./unprotoize $(GCC_PASSES)
 	-rm -f tmp-proto.[cso]
-	cp $(srcdir)/protoize.c tmp-proto.c
+	$(CP) $(srcdir)/protoize.c tmp-proto.c
 	chmod u+w tmp-proto.c
 	./protoize -N -B ./ -x getopt.h -c "-B./ -Wall -Wwrite-strings \
 	  $(GCC_CFLAGS) $(INCLUDES) \
@@ -3595,12 +3618,12 @@ stmp-int-hdrs: $(STMP_FIXINC) $(USER_H) $(UNWIND_H) fixinc_list
 	    realfile=`echo $$file | sed -e 's|.*/\([^/]*\)$$|\1|'`; \
 	    $(STAMP) include/$$realfile; \
 	    rm -f include/$$realfile; \
-	    cp $$file include; \
+	    $(CP) $$file include; \
 	    chmod a+r include/$$realfile; \
 	  fi; \
 	done
 	rm -f include/unwind.h
-	cp $(UNWIND_H) include/unwind.h
+	$(CP) $(UNWIND_H) include/unwind.h
 	set -e; for ml in `cat fixinc_list`; do \
 	  sysroot_headers_suffix=`echo $${ml} | sed -e 's/;.*$$//'`; \
 	  multi_dir=`echo $${ml} | sed -e 's/^[^;]*;//'`; \
@@ -3618,7 +3641,7 @@ stmp-int-hdrs: $(STMP_FIXINC) $(USER_H) $(UNWIND_H) fixinc_list
 	done
 # Install the README
 	rm -f include-fixed/README
-	cp $(srcdir)/../fixincludes/README-fixinc include-fixed/README
+	$(CP) $(srcdir)/../fixincludes/README-fixinc include-fixed/README
 	chmod a+r include-fixed/README
 	$(STAMP) $@
 
@@ -3707,7 +3730,7 @@ stmp-fixinc: gsyslimits.h macro_list fixinc_list \
 	    if [ -f $${fix_dir}/limits.h ]; then \
 	      mv $${fix_dir}/limits.h $${fix_dir}/syslimits.h; \
 	    else \
-	      cp $(srcdir)/gsyslimits.h $${fix_dir}/syslimits.h; \
+	      $(CP) $(srcdir)/gsyslimits.h $${fix_dir}/syslimits.h; \
 	    fi; \
 	    chmod a+r $${fix_dir}/syslimits.h; \
 	  done; \

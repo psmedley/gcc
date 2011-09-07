@@ -137,6 +137,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
      POSIX/Unix95 threads with -D_PTHREADS95
      DCE threads with -D_DCE_THREADS
      Solaris/UI threads with -D_SOLARIS_THREADS
+     OS/2 threads with -D_OS2_THREADS
    
 */
 
@@ -151,6 +152,8 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #include "gthr-dce.h"
 #elif _SOLARIS_THREADS
 #include "gthr-solaris.h"
+#elif _OS2_THREADS 
+#include "gthr-os2.h"
 
 /* Include GTHREAD_FILE if one is defined.  */
 #elif defined(HAVE_GTHR_DEFAULT)

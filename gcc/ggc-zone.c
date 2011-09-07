@@ -39,6 +39,7 @@ along with GCC; see the file COPYING3.  If not see
 
 /* Prefer MAP_ANON(YMOUS) to /dev/zero, since we don't need to keep a
    file open.  Prefer either to valloc.  */
+#ifndef __OS2__
 #ifdef HAVE_MMAP_ANON
 # undef HAVE_MMAP_DEV_ZERO
 
@@ -59,6 +60,7 @@ along with GCC; see the file COPYING3.  If not see
 # endif
 # define USING_MMAP
 #endif
+#endif /* __OS2__ */
 
 #ifndef USING_MMAP
 #error Zone collector requires mmap

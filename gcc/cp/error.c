@@ -28,6 +28,7 @@ along with GCC; see the file COPYING3.  If not see
 #include "toplev.h"
 #include "flags.h"
 #include "diagnostic.h"
+#include "tm_p.h"
 #include "langhooks-def.h"
 #include "cxx-pretty-print.h"
 
@@ -590,12 +591,18 @@ dump_type_prefix (tree t, int flags)
 	 templates, e.g. std::is_function.  */
     case FUNCTION_TYPE:
       dump_type_prefix (TREE_TYPE (t), flags);
+#ifdef TARGET_PRINT_TYPE_ATTRS
+      TARGET_PRINT_TYPE_ATTRS (t, scratch_buffer);
+#endif
       break;
 
     case METHOD_TYPE:
       dump_type_prefix (TREE_TYPE (t), flags);
       pp_maybe_space (cxx_pp);
       pp_cxx_left_paren (cxx_pp);
+#ifdef TARGET_PRINT_TYPE_ATTRS
+      TARGET_PRINT_TYPE_ATTRS (t, scratch_buffer);
+#endif
       dump_aggr_type (TYPE_METHOD_BASETYPE (t), flags);
       pp_cxx_colon_colon (cxx_pp);
       break;

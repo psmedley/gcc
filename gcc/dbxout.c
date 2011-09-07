@@ -1342,7 +1342,14 @@ dbxout_function_decl (tree decl)
 static void
 dbxout_global_decl (tree decl)
 {
-  if (TREE_CODE (decl) == VAR_DECL && !DECL_EXTERNAL (decl))
+  if (TREE_CODE (decl) == VAR_DECL 
+#ifdef EMXx /* bird: debug info for all referenced global vars. problem with 4.3.2*/
+      && (   !DECL_EXTERNAL (decl)
+          || (   use_gnu_debug_info_extensions
+              && TREE_SYMBOL_REFERENCED (DECL_NAME (decl))))
+#else
+      && ! DECL_EXTERNAL (decl))
+#endif
     {
       int saved_tree_used = TREE_USED (decl);
       TREE_USED (decl) = 1;
@@ -2153,6 +2160,13 @@ dbxout_type (tree type, int full)
       /* We must use the same test here as we use in the DBX_NO_XREFS case
 	 above.  We simplify it a bit since an enum will never have a variable
 	 size.  */
+#ifdef EMX
+      /* bird: I believe this test is wrong. The test above checks if we
+         already used gnu extenstions and gathers that it's ok to continue
+         do non-standard stuff then.
+         Anyway, we can't cope with crossreferences to enums. */
+     if (!use_gnu_debug_info_extensions)
+#endif
       if ((TYPE_NAME (type) != 0
 	   && ! (TREE_CODE (TYPE_NAME (type)) == TYPE_DECL
 		 && DECL_IGNORED_P (TYPE_NAME (type)))
@@ -2775,10 +2789,19 @@ dbxout_symbol (tree decl, int local ATTRIBUTE_UNUSED)
 
     case RESULT_DECL:
     case VAR_DECL:
+#ifdef EMX
+      /* Don't mention a variable that is external and unreferenced..
+	 bird: Referenced variables must be mentioned for OMF support.  */
+      if (DECL_EXTERNAL (decl)
+          && (   !use_gnu_debug_info_extensions
+              || !TREE_SYMBOL_REFERENCED (DECL_NAME (decl))))
+        break;
+#else
       /* Don't mention a variable that is external.
 	 Let the file that defines it describe it.  */
       if (DECL_EXTERNAL (decl))
 	break;
+#endif
 
       /* If the variable is really a constant
 	 and not written in memory, inform the debugger.
@@ -3054,6 +3077,34 @@ dbxout_symbol_location (tree decl, tree type, const char *suffix, rtx home)
 	  addr = 0;
 	  number = offs;
 	  code = N_GSYM;
+#ifdef EMX 
+          /* bird: Two hacks.
+             1) Get right address for globals. We're using the value field of
+                the entry for this. This makes the following code work:
+                class foo { foo() {static const char *psz= "foo";} };
+             2) Hack 1 doesn't work for external or communal data. They would
+                both require a fixup of the stabs value to work - which a.out
+                naturally doesn't support (ELF does though).
+                So, what we'll do is to make an extra entry before the 'G'
+                entry which tells us the symbol name.
+                In this case the value of the 'G' entry is -12357.  */
+          if (use_gnu_debug_info_extensions)
+            {
+              addr = XEXP (home, 0);
+              if (DECL_EXTERNAL (decl) || DECL_COMMON (decl))
+                {
+                  fprintf (asm_out_file, "\t.stabs\t\"");
+                  output_addr_const (asm_out_file, addr);
+#if 0
+                  fprintf (asm_out_file, "\",%d,0,0,0\n", /*N_EXT | N_UNDF*/1);
+#else
+                  fprintf (asm_out_file, "\",%d,0,0,0\n", /*extension*/ 0xfe);
+#endif
+                  addr = 0;
+                  number = -12357;
+                }
+            }
+#endif
 	}
     }
   else if (GET_CODE (home) == CONCAT)

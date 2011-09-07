@@ -95,7 +95,9 @@
 #define TARGET_ASM_FUNCTION_PROLOGUE default_function_pro_epilogue
 #define TARGET_ASM_FUNCTION_EPILOGUE default_function_pro_epilogue
 #define TARGET_ASM_FUNCTION_END_PROLOGUE no_asm_to_stream
+#ifndef TARGET_ASM_FUNCTION_BEGIN_EPILOGUE /* GCC-OS2 */
 #define TARGET_ASM_FUNCTION_BEGIN_EPILOGUE no_asm_to_stream
+#endif                                     /* GCC-OS2 */
 
 #ifndef TARGET_ASM_RELOC_RW_MASK
 #define TARGET_ASM_RELOC_RW_MASK default_reloc_rw_mask

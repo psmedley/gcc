@@ -201,6 +201,7 @@ esac
 if [[ "${shared}" = "yes" ]]; then
   case "${host}" in
     *-*-cygwin*)	;;
+    i*86-pc-*emx)	;;
     alpha*-*-linux*)	PICFLAG=-fPIC ;;
     arm*-*-*)		PICFLAG=-fPIC ;;
     hppa*-*-*)		PICFLAG=-fPIC ;;

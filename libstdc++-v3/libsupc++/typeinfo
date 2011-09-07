@@ -59,7 +59,7 @@ namespace __cxxabiv1
 // indicate whether or not pointer comparison can be used.
 
 #ifndef __GXX_MERGED_TYPEINFO_NAMES
-  #if !__GXX_WEAK__
+  #if !__GXX_WEAK__ || (defined(__OS2__) && defined(__EMX__)) /* bird */
     // If weak symbols are not supported, typeinfo names are not merged.
     #define __GXX_MERGED_TYPEINFO_NAMES 0
   #else
@@ -70,7 +70,7 @@ namespace __cxxabiv1
 
 // By default follow the same rules as for __GXX_MERGED_TYPEINFO_NAMES.
 #ifndef __GXX_TYPEINFO_EQUALITY_INLINE
-  #if !__GXX_WEAK__
+  #if !__GXX_WEAK__ || (defined(__OS2__) && defined(__EMX__)) /* bird */
     #define __GXX_TYPEINFO_EQUALITY_INLINE 0
   #else
     #define __GXX_TYPEINFO_EQUALITY_INLINE 1

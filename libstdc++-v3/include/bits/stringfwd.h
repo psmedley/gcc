@@ -59,6 +59,8 @@ _GLIBCXX_BEGIN_NAMESPACE(std)
   template<> struct char_traits<wchar_t>;
 
   typedef basic_string<wchar_t> wstring;
+#elif defined(__OS2__)
+  typedef basic_string<wchar_t> wstring;
 #endif
 
 #if (defined(__GXX_EXPERIMENTAL_CXX0X__) \

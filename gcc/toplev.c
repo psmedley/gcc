@@ -1572,8 +1572,10 @@ general_init (const char *argv0)
   pp_format_decoder (global_dc->printer) = &default_tree_printer;
 
   /* Trap fatal signals, e.g. SIGSEGV, and convert them to ICE messages.  */
+#ifndef __OS2__ /* On OS/2 we'd rather see the registers to help understand where the crash occured */
 #ifdef SIGSEGV
   signal (SIGSEGV, crash_signal);
+#endif
 #endif
 #ifdef SIGILL
   signal (SIGILL, crash_signal);

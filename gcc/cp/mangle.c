@@ -78,6 +78,11 @@ along with GCC; see the file COPYING3.  If not see
 # define MANGLE_TRACE_TREE(FN, NODE)
 #endif
 
+/* Provide a dummy target-specific name mangling hook */
+#ifndef TARGET_CXX_SET_DECL_ASSEMBLER_NAME
+#define TARGET_CXX_SET_DECL_ASSEMBLER_NAME(decl) 0
+#endif
+
 /* Nonzero if NODE is a class template-id.  We can't rely on
    CLASSTYPE_USE_TEMPLATE here because of tricky bugs in the parser
    that hard to distinguish A<T> from A, where A<T> is the type as
@@ -2800,9 +2805,13 @@ mangle_decl_string (const tree decl)
 void
 mangle_decl (const tree decl)
 {
-  tree id = mangle_decl_string (decl);
-  id = targetm.mangle_decl_assembler_name (decl, id);
-  SET_DECL_ASSEMBLER_NAME (decl, id);
+  /* GCC-OS2: mangling hack - fixes _System */
+  tree id;
+  if (!TARGET_CXX_SET_DECL_ASSEMBLER_NAME (decl)) {
+     id = mangle_decl_string (decl);
+     id = targetm.mangle_decl_assembler_name (decl, id);
+     SET_DECL_ASSEMBLER_NAME (decl, id);
+  }
 }
 
 /* Generate the mangled representation of TYPE.  */

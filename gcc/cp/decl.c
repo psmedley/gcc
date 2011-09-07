@@ -10750,7 +10750,22 @@ xref_tag (enum tag_types tag_code, tree name,
 	    }
 	}
     }
-
+#if 0 /* Broken in 3.4.6 - is it still necessary??? */
+#if 1 /* bird: HACK ALERT! HACK ALERT! */
+  /* Don't replace attributes with nothing. See the nsSupportWeakReference / friend problem.
+     Limit any negative sideeffects this hack may have by only caring for a select number of attributes. */
+  if (   TYPE_ATTRIBUTES (t)
+      && (   lookup_attribute ("dllexport", TYPE_ATTRIBUTES (t))
+          || lookup_attribute ("dllimport", TYPE_ATTRIBUTES (t))
+          || lookup_attribute ("system", TYPE_ATTRIBUTES (t))
+          || lookup_attribute ("cdecl", TYPE_ATTRIBUTES (t))
+          || lookup_attribute ("optlink", TYPE_ATTRIBUTES (t))
+          || lookup_attribute ("stdcall", TYPE_ATTRIBUTES (t))))
+    TYPE_ATTRIBUTES (t) = merge_attributes(TYPE_ATTRIBUTES (t), attributes);
+  else
+    TYPE_ATTRIBUTES (t) = attributes;
+#endif
+#endif
   POP_TIMEVAR_AND_RETURN (TV_NAME_LOOKUP, t);
 }
 

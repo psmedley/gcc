@@ -279,3 +279,16 @@ extern int asm_preferred_eh_data_format (int, int);
 #ifdef HAVE_ATTR_cpu
 extern enum attr_cpu ix86_schedule;
 #endif
+
+/* In emx.c  */
+extern bool i386_emx_binds_local_p (const_tree);
+extern void i386_emx_init_sections (void);
+extern void i386_emx_asm_out_destructor (rtx, int);
+extern tree i386_emx_mangle_decl_assembler_name (tree, tree);
+extern void i386_emx_maybe_record_exported_symbol (tree, const char *, int);
+extern bool i386_emx_valid_dllimport_attribute_p (const_tree);
+
+/* In emx-cxx.c  */
+extern void i386_emx_adjust_class_at_definition (tree);
+extern bool i386_emx_type_dllimport_p (tree);
+extern bool i386_emx_type_dllexport_p (tree);

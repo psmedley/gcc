@@ -41,6 +41,8 @@
 # undef CROSS_INCLUDE_DIR
 #endif
 
+/* GCC-OS2: Added a few more configuration options so we can automagically
+   rewrite /gcc/ to whereever we're installed for all of the dirs we use. */
 const struct default_include cpp_include_defaults[]
 #ifdef INCLUDE_DEFAULTS
 = INCLUDE_DEFAULTS;
@@ -60,10 +62,10 @@ const struct default_include cpp_include_defaults[]
 #endif
 #ifdef LOCAL_INCLUDE_DIR
     /* /usr/local/include comes before the fixincluded header files.  */
-    { LOCAL_INCLUDE_DIR, 0, 0, 1, 1, 0 },
+    { LOCAL_INCLUDE_DIR, LOCAL_INCLUDE_COMPONENT, 0, 1, 1, 0 },
 #endif
 #ifdef PREFIX_INCLUDE_DIR
-    { PREFIX_INCLUDE_DIR, 0, 0, 1, 0, 0 },
+    { PREFIX_INCLUDE_DIR, PREFIX_INCLUDE_COMPONENT, 0, 1, 0, 0 },
 #endif
 #ifdef GCC_INCLUDE_DIR
     /* This is the dir for gcc's private headers.  */
@@ -91,7 +93,7 @@ const struct default_include cpp_include_defaults[]
 #endif
 #ifdef SYSTEM_INCLUDE_DIR
     /* Some systems have an extra dir of include files.  */
-    { SYSTEM_INCLUDE_DIR, 0, 0, 0, 1, 0 },
+    { SYSTEM_INCLUDE_DIR, SYSTEM_INCLUDE_COMPONENT, 0, 0, 1, 0 },
 #endif
 #ifdef STANDARD_INCLUDE_DIR
     /* /usr/include comes dead last.  */

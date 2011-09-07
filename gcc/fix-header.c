@@ -1086,6 +1086,10 @@ main (int argc, char **argv)
   long int inf_size;
   struct symbol_list *cur_symbols;
 
+#if defined (__EMX__)
+  return 0;	// fix-header does only harm to emx` includes
+#endif
+
   progname = "fix-header";
   if (argv[0] && argv[0][0])
     {
