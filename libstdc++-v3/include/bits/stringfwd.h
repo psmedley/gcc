@@ -66,6 +66,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   /// A string of @c wchar_t
   typedef basic_string<wchar_t> wstring;   
+#elif defined(__OS2__)
+  typedef basic_string<wchar_t> wstring;
 #endif
 
 #if ((__cplusplus >= 201103L) \

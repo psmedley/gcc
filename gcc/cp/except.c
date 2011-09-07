@@ -1012,8 +1012,13 @@ is_admissible_throw_operand_or_catch_parameter (tree t, bool is_throw)
 
 #include "cfns.h"
 
+#ifndef __OS2__
 int
 nothrow_libfn_p (const_tree fn)
+#else
+int
+nothrow_libfn_p (tree fn)
+#endif
 {
   tree id;
 
@@ -1030,6 +1035,13 @@ nothrow_libfn_p (const_tree fn)
      unless the system headers are playing rename tricks, and if
      they are, we don't want to be confused by them.  */
   id = DECL_NAME (fn);
+#ifdef TARGET_CXX_SET_DECL_ASSEMBLER_NAME /* GCC-OS2 */
+  /* Actually the above is a bug. We can't mangle correctly unless we
+     have a complete decl. Until then, as a partial fix, reset the
+     mangled name to NULL so that next DECL_ASSEMBLER_NAME calls
+     mangler again, now with a complete decl. */
+  SET_DECL_ASSEMBLER_NAME(fn, NULL_TREE);
+#endif
   return !!libc_name_p (IDENTIFIER_POINTER (id), IDENTIFIER_LENGTH (id));
 }
 
