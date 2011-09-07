@@ -1507,6 +1507,12 @@ typedef struct ix86_args {
   BOOL_BITFIELD callee_pass_avx256_p : 1;
   /* Nonzero if it returns 256bit AVX modes.  */
   BOOL_BITFIELD callee_return_avx256_p : 1;
+#ifdef __OS2__
+  int fpu_regno;		/* next available FPU register number */
+  int fpu_nregs;		/* # registers available for passing */
+  int ec_slots;			/* # eyecatcher slots left (see optlink specs) */
+  int optlink;			/* nonzero if optlink (vs. regparm) */
+#endif /* EMX */
 } CUMULATIVE_ARGS;
 #endif
 

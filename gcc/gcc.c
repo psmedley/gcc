@@ -249,7 +249,7 @@ static void fatal_signal (int);
 static void init_gcc_specs (struct obstack *, const char *, const char *,
 			    const char *);
 #endif
-#if defined(HAVE_TARGET_OBJECT_SUFFIX) || defined(HAVE_TARGET_EXECUTABLE_SUFFIX)
+#if defined(HAVE_TARGET_OBJECT_SUFFIX) || defined(HAVE_TARGET_EXECUTABLE_SUFFIX) && !defined (NO_FORCE_EXEOBJ_SUFFIX)
 static const char *convert_filename (const char *, int, int);
 #endif
 
@@ -2550,7 +2550,7 @@ execute (void)
   for (n_commands = 1, i = 0; VEC_iterate (const_char_p, argbuf, i, arg); i++)
     if (arg && strcmp (arg, "|") == 0)
       {				/* each command.  */
-#if defined (__MSDOS__) || defined (OS2) || defined (VMS)
+#if defined (__MSDOS__) || defined (VMS)
 	fatal_error ("-pipe not supported");
 #endif
 	VEC_replace (const_char_p, argbuf, i, 0); /* Termination of
@@ -2911,7 +2911,7 @@ static int added_libraries;
 
 const char **outfiles;
 
-#if defined(HAVE_TARGET_OBJECT_SUFFIX) || defined(HAVE_TARGET_EXECUTABLE_SUFFIX)
+#if (defined(HAVE_TARGET_OBJECT_SUFFIX) || defined(HAVE_TARGET_EXECUTABLE_SUFFIX)) && !defined (NO_FORCE_EXEOBJ_SUFFIX)
 
 /* Convert NAME to a new name if it is the standard suffix.  DO_EXE
    is true if we should look for an executable suffix.  DO_OBJ
@@ -3521,9 +3521,11 @@ driver_handle_option (struct gcc_options *opts,
 
     case OPT_o:
       have_o = 1;
+#ifndef NO_FORCE_EXEOBJ_SUFFIX
 #if defined(HAVE_TARGET_EXECUTABLE_SUFFIX) || defined(HAVE_TARGET_OBJECT_SUFFIX)
       arg = convert_filename (arg, ! have_c, 0);
 #endif
+#endif /* NO_FORCE_EXEOBJ_SUFFIX */
       /* Save the output name in case -save-temps=obj was used.  */
       save_temps_prefix = xstrdup (arg);
       /* On some systems, ld cannot handle "-o" without a space.  So
@@ -3757,6 +3759,7 @@ process_command (unsigned int decoded_options_count,
 	}
     }
 
+#ifndef __EMX__ /* Under OS/2 (__EMX__) LPATH is used in LANManager client & server */
   /* Use LPATH like LIBRARY_PATH (for the CMU build program).  */
   temp = getenv ("LPATH");
   if (temp && *cross_compile == '0')
@@ -3789,6 +3792,7 @@ process_command (unsigned int decoded_options_count,
 	    endp++;
 	}
     }
+#endif /* not __EMX__ */
 
   /* Process the options and store input files and switches in their
      vectors.  */
@@ -3916,14 +3920,12 @@ process_command (unsigned int decoded_options_count,
      configured-in locations.  */
   if (!gcc_exec_prefix)
     {
-#ifndef OS2
       add_prefix (&exec_prefixes, standard_libexec_prefix, "GCC",
 		  PREFIX_PRIORITY_LAST, 1, 0);
       add_prefix (&exec_prefixes, standard_libexec_prefix, "BINUTILS",
 		  PREFIX_PRIORITY_LAST, 2, 0);
       add_prefix (&exec_prefixes, standard_exec_prefix, "BINUTILS",
 		  PREFIX_PRIORITY_LAST, 2, 0);
-#endif
       add_prefix (&startfile_prefixes, standard_exec_prefix, "BINUTILS",
 		  PREFIX_PRIORITY_LAST, 1, 0);
     }
@@ -6855,6 +6857,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
      with %b in LINK_SPEC. We use the first input file that we can find
      a compiler to compile it instead of using infiles.language since for
      languages other than C we use aliases that we then lookup later.  */
+#ifndef __EMX__ /* This code fails on OS/2 - revert to the GCC 3.4.6 code */
   if (n_infiles > 0)
     {
       int i;
@@ -6867,6 +6870,10 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
 	    break;
 	  }
     }
+#else
+  if (n_infiles > 0)
+    set_input (infiles[0].name);
+#endif
 
   if (!seen_error ())
     {

@@ -41,6 +41,11 @@ along with GCC; see the file COPYING3.  If not see
 #include "cgraph.h"
 #include "output.h"
 
+/* Provide a dummy target-specific name mangling hook */
+#ifndef TARGET_C_SET_DECL_ASSEMBLER_NAME
+#define TARGET_C_SET_DECL_ASSEMBLER_NAME(decl) 0
+#endif
+
 /* Do nothing; in many cases the default hook.  */
 
 void
@@ -180,7 +185,7 @@ lhd_set_decl_assembler_name (tree decl)
       id = get_identifier (label);
     }
   SET_DECL_ASSEMBLER_NAME (decl, id);
-
+ } /* os2 */
 }
 
 /* Type promotion for variable arguments.  */

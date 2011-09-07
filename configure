@@ -3056,7 +3056,7 @@ if test x$enable_libgomp = x ; then
 	;;
     *-*-solaris2* | *-*-irix6* | *-*-osf* | *-*-hpux11*)
 	;;
-    *-*-darwin* | *-*-aix*)
+    *-*-darwin* | *-*-aix* | i*86-pc-*emx)
 	;;
     *)
 	noconfigdirs="$noconfigdirs target-libgomp"

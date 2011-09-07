@@ -211,7 +211,7 @@ typedef struct {
 
 extern int gnu_type_map_ct;
 
-#ifdef HAVE_MMAP_FILE
+#if defined( HAVE_MMAP_FILE ) && !defined(__OS2__)
 #define UNLOAD_DATA() do { if (curr_data_mapped) { \
   munmap ((void*)pz_curr_data, data_map_size); close (data_map_fd); } \
   else free ((void*)pz_curr_data); } while(0)

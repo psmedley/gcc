@@ -50,6 +50,12 @@ along with GCC; see the file COPYING3.  If not see
 #ifndef LIBSTDCXX_STATIC
 #define LIBSTDCXX_STATIC NULL
 #endif
+#ifdef LIBSTDCXX_STATIC                                                             /* bird */
+#define LIBSTDCXX_STATIC "-lstdc++"                                                 /* bird */
+#endif                                                                              /* bird */
+#ifdef LIBSTDCXX_PROFILE_STATIC                                                     /* bird */
+#define LIBSTDCXX_PROFILE_STATIC "-lstdc++"                                         /* bird */
+#endif                                                                              /* bird */
 
 void
 lang_specific_driver (struct cl_decoded_option **in_decoded_options,
@@ -100,6 +106,9 @@ lang_specific_driver (struct cl_decoded_option **in_decoded_options,
   /* True if we should add -shared-libgcc to the command-line.  */
   int shared_libgcc = 1;
 
+  /* True if we saw the '-static' option on the commandline. */                     /* bird */
+  int saw_static = 0;                                                               /* bird */
+                                                                                    /* bird */
   /* The total number of arguments with the new stuff.  */
   unsigned int argc;
 
@@ -181,6 +190,8 @@ lang_specific_driver (struct cl_decoded_option **in_decoded_options,
 
 	case OPT_static:
 	  static_link = 1;
+	  saw_static = 1;
+	  shared_libgcc = 0;
 	  break;
 
 	case OPT_static_libgcc:

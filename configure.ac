@@ -485,7 +485,7 @@ if test x$enable_libgomp = x ; then
 	;;
     *-*-solaris2* | *-*-irix6* | *-*-osf* | *-*-hpux11*)
 	;;
-    *-*-darwin* | *-*-aix*)
+    *-*-darwin* | *-*-aix*  | i*86-pc-*emx)
 	;;
     *)
 	noconfigdirs="$noconfigdirs target-libgomp"
@@ -1073,6 +1073,9 @@ if test -d ${srcdir}/config ; then
 case "${host}" in
   i[[3456789]]86-*-msdosdjgpp*)
     host_makefile_frag="config/mh-djgpp"
+    ;;
+  i[3456]86-*-os2*)
+    host_makefile_frag="config/mh-emx"
     ;;
   *-cygwin*)
     ACX_CHECK_CYGWIN_CAT_WORKS
