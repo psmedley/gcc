@@ -4522,8 +4522,7 @@ struct attribute_spec
   const bool type_required;
   /* Whether this attribute requires a function (or method) type.  If it does,
      it will be passed from a function pointer type to the target type,
-     and from a function return type (which is not itself a function
-     pointer type) to the function type.  */
+     and from a function return type to the function type.  */
   const bool function_type_required;
   /* Function to handle this attribute.  NODE points to the node to which
      the attribute is to be applied.  If a DECL, it should be modified in
