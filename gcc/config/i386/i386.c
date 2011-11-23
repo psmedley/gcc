@@ -40,6 +40,9 @@ along with GCC; see the file COPYING3.  If not see
 #include "expr.h"
 #include "optabs.h"
 #include "diagnostic-core.h"
+#ifdef __EMX__
+#include "cp/cp-tree.h" /* we need SET_DECL_LANGUAGE */
+#endif
 #include "toplev.h"
 #include "basic-block.h"
 #include "ggc.h"
@@ -5167,6 +5170,24 @@ ix86_handle_cconv_attribute (tree *node, tree name,
 	  error ("optlink and sseregparm attributes are not compatible");
 	}
 #endif
+    }
+#endif
+
+#ifdef __EMX__
+  /* Be compatible with IBM VAC and imply `extern "C"' for certain calling
+     conventions when they are used on functions in C++ code.  It may be a good
+     idea to use a target-specific compiler option for that in the future.  */
+  if (is_attribute_p ("system", name) ||
+      is_attribute_p ("optlink", name) ||
+      is_attribute_p ("stdcall", name) ||
+      is_attribute_p ("cdecl", name))
+    {
+      if (TREE_CODE (*node) == FUNCTION_TYPE && TYPE_CONTEXT (*node) != NULL_TREE)
+        {
+          tree ctx = TYPE_CONTEXT (*node);
+          if (TREE_CODE (ctx) == FUNCTION_DECL && DECL_LANG_SPECIFIC (ctx))
+            SET_DECL_LANGUAGE (ctx, lang_c);
+        }
     }
 #endif
 
