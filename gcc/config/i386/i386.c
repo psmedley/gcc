@@ -5813,13 +5813,12 @@ init_cumulative_args (CUMULATIVE_ARGS *cum,  /* Argument info to initialize */
 		      ? (!prototype_p (fntype) || stdarg_p (fntype))
 		      : !libname);
 
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
-  /* _Optlink calling convention says all args until the ellipsis
-             are passed in registers, and all varargs on the stack. */
-  if (!cum->optlink)
-#endif
   if (!TARGET_64BIT)
     {
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+      /* _Optlink calling convention says all args until the ellipsis
+         are passed in registers, and all varargs on the stack. */
+#else
       /* If there are variable arguments, then we won't pass anything
          in registers in 32-bit mode. */
       if (stdarg_p (fntype))
@@ -5832,6 +5831,7 @@ init_cumulative_args (CUMULATIVE_ARGS *cum,  /* Argument info to initialize */
 	  cum->warn_mmx = 0;
 	  return;
 	}
+#endif
 
       /* Use ecx and edx registers if function has fastcall attribute,
 	 else look for regparm information.  */
@@ -5850,26 +5850,23 @@ init_cumulative_args (CUMULATIVE_ARGS *cum,  /* Argument info to initialize */
 	    }
 	  else
             {
-		cum->nregs = ix86_function_regparm (fntype, fndecl);
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES /* reasonable confidence */
-		if (lookup_attribute ("optlink", TYPE_ATTRIBUTES (fntype)))
-	          {
-			cum->nregs = 3; cum->optlink = 1;
-		  }
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+	      if (lookup_attribute ("optlink", TYPE_ATTRIBUTES (fntype)))
+		{
+		  cum->optlink = 1;
+		  /* Limit number of registers to pass arguments as in _Optlink specification */
+		  cum->nregs = 3;
+		  cum->fpu_nregs = 4;
+		  /* The total size of arguments passed in registers can be up to 12 dwords.
+                     Float types count for their real size (e.g. float for 1 dword, double
+                     for 2 dwords. long double for 4 dwords). */
+		  cum->ec_slots = 12;
+		}
+	      else
 #endif
+              cum->nregs = ix86_function_regparm (fntype, fndecl);
 	    }
 	}
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
-      /* Limit number of registers to pass arguments as in _Optlink specification */
-      if (cum->optlink)
-        {
-          if (cum->nregs > 3)
-            cum->nregs = 3;
-          if (cum->fpu_nregs > 4)
-            cum->fpu_nregs = 4;
-        }
-#endif
-
       /* Set up the number of SSE registers used for passing SFmode
 	 and DFmode arguments.  Warn for mismatching ABI.  */
       cum->float_in_sse = ix86_function_sseregparm (fntype, fndecl, true);
@@ -6666,60 +6663,60 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case HImode:
     case QImode:
       cum->words += words;
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok */
-          /* Optlink functions never pass aggregates in registers
-             (they are pushed on the stack, and the registers are
-             preserved for following parameters). */
-          if (cum->optlink)
-            {
-              /* If out of eyecatcher slots, do nothing */
-              if (!cum->ec_slots)
-                return;
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+      /* Optlink functions never pass aggregates in registers
+	 (they are pushed on the stack, and the registers are
+	 preserved for following parameters). */
+      if (cum->optlink)
+	{
+	  /* If out of eyecatcher slots, do nothing */
+	  if (!cum->ec_slots)
+	    return;
 
-              if (INTEGRAL_TYPE_P (type)
-               || POINTER_TYPE_P (type))
-                {
-                  /* Integer types takes one slot in eyecatcher */
-                  cum->ec_slots--;
-                }
-              else if (FLOAT_MODE_P (mode))
-                {
-                  /* Fixed-point parameters are passed in FPU registers */
-                  if (cum->fpu_nregs)
-                    {
-                      cum->fpu_nregs--;
-                      cum->fpu_regno++;
-                      /* Args passed in FPU stack takes one eyecatcher slot */
-                      cum->ec_slots--;
-                    }
-                  else
-                    {
-                      /* FPU args passed on RT stack takes 1/2/4 slots */
-                      cum->ec_slots -= words;
-                    }
+	  if (INTEGRAL_TYPE_P (type)
+	   || POINTER_TYPE_P (type))
+	    {
+	      /* Integer types takes one slot in eyecatcher */
+	      cum->ec_slots--;
+	    }
+	  else if (FLOAT_MODE_P (mode))
+	    {
+	      /* Fixed-point parameters are passed in FPU registers */
+	      if (cum->fpu_nregs)
+		{
+		  cum->fpu_nregs--;
+		  cum->fpu_regno++;
+		  /* Args passed in FPU stack takes one eyecatcher slot */
+		  cum->ec_slots--;
+		}
+	      else
+		{
+		  /* FPU args passed on RT stack takes 1/2/4 slots */
+		  cum->ec_slots -= words;
+		}
 
-                  /* The case with ec_slots <= 0 will be catched a little lates */
-                  if (cum->ec_slots > 0)
-                    return;
-                }
-              else
-                {
-                  /* This is nor a integer, address or float parameter.
-                     Pass it on the stack but count its size in eyecatcher. */
-                  cum->ec_slots -= words;
-                  if (cum->ec_slots > 0)
-                    return;
-                }
+	      /* The case with ec_slots <= 0 will be catched a little lates */
+	      if (cum->ec_slots > 0)
+		return;
+	    }
+	  else
+	    {
+	      /* This is nor a integer, address or float parameter.
+		 Pass it on the stack but count its size in eyecatcher. */
+	      cum->ec_slots -= words;
+	      if (cum->ec_slots > 0)
+		return;
+	    }
 
-              /* If we're out of eyecatcher slots, pass the arg on the stack */
-              if (cum->ec_slots <= 0)
-                {
-                  cum->ec_slots = 0;
-                  cum->nregs = 0;
-                  cum->fpu_nregs = 0;
-                  return;
-                }
-            }
+	  /* If we're out of eyecatcher slots, pass the arg on the stack */
+	  if (cum->ec_slots <= 0)
+	    {
+	      cum->ec_slots = 0;
+	      cum->nregs = 0;
+	      cum->fpu_nregs = 0;
+	      return;
+	    }
+	}
 #endif
       cum->nregs -= words;
       cum->regno += words;
@@ -6757,7 +6754,7 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case V4SFmode:
     case V2DFmode:
       if (!type || !AGGREGATE_TYPE_P (type)
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok */
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
           && !cum->optlink
 #endif
         )
@@ -6779,7 +6776,11 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case V2SFmode:
     case V1TImode:
     case V1DImode:
-      if (!type || !AGGREGATE_TYPE_P (type))
+      if (!type || !AGGREGATE_TYPE_P (type)
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+          && !cum->optlink
+#endif
+        )
 	{
 	  cum->mmx_words += words;
 	  cum->mmx_nregs -= 1;
@@ -6887,35 +6888,34 @@ function_arg_32 (const CUMULATIVE_ARGS *cum, enum machine_mode mode,
   if (mode == VOIDmode)
     return constm1_rtx;
 
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok */
-  rtx ret = NULL_RTX;
-      /* For optlink calling convention, don't pass anything other than
-         integral types and floats through registers. */
-      if (!cum->optlink
-          || INTEGRAL_TYPE_P (type)
-          || POINTER_TYPE_P (type)
-          || (TREE_CODE (type) == REAL_TYPE))
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+  /* For optlink calling convention, don't pass anything other than
+     integral types and floats through registers. */
+  if (!cum->optlink
+      || INTEGRAL_TYPE_P (type)
+      || POINTER_TYPE_P (type)
+      || (TREE_CODE (type) == REAL_TYPE))
 #endif
-
   switch (mode)
     {
     default:
       break;
 
-#if defined TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok  */
-        case XFmode:
-        case TFmode:
-        if (cum->fpu_nregs && cum->optlink && cum->ec_slots)
-          {
-            /* Pass first four floating-point args in FPU registers */
-            ret = gen_rtx_PARALLEL (mode, rtvec_alloc (2));
-            XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
-                                           NULL_RTX, const0_rtx);
-            XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST (VOIDmode,
-                                           gen_rtx_REG ( mode, FIRST_FLOAT_REG + cum->fpu_regno),
-                                           const0_rtx);
-          }
-        break;
+#if defined TARGET_OPTLINK_DECL_ATTRIBUTES
+    case XFmode:
+    case TFmode:
+      if (cum->fpu_nregs && cum->optlink && cum->ec_slots)
+	{
+	  /* Pass first four floating-point args in FPU registers */
+	  rtx ret = gen_rtx_PARALLEL (mode, rtvec_alloc (2));
+	  XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
+					 NULL_RTX, const0_rtx);
+	  XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST (VOIDmode,
+					 gen_rtx_REG ( mode, FIRST_FLOAT_REG + cum->fpu_regno),
+					 const0_rtx);
+	  return ret;
+	}
+      break;
 #endif
     case BLKmode:
       if (bytes < 0)
@@ -6926,40 +6926,38 @@ function_arg_32 (const CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case HImode:
     case QImode:
       if (words <= cum->nregs)
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok */
-          {
-            if (cum->optlink)
-              {
-                if (cum->ec_slots)
-                  {
-                    /* Optlink specs says that the parameter is passed in a register
-                       and space on the stack is reserved for it as well (which is not
-                       filled). Currently GCC will pass the parameter *both* in register
-                       and stack; this is suboptimal but is compatible. */
-                    ret = gen_rtx_PARALLEL ( mode, rtvec_alloc (2));
-                    XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
-                                                   NULL_RTX, const0_rtx);
-                    XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST ( VOIDmode,
-                                                   gen_rtx_REG ( mode, cum->regno),
-                                                   const0_rtx);
-                  }
-              }
-            else
-              ret = gen_rtx_REG (mode, cum->regno);
-          }
-#else
 	{
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+	  if (cum->optlink)
+	    {
+	      if (cum->ec_slots)
+		{
+		  /* Optlink specs says that the parameter is passed in a register
+		     and space on the stack is reserved for it as well (which is not
+		     filled). Currently GCC will pass the parameter *both* in register
+		     and stack; this is suboptimal but is compatible. */
+		  rtx ret = gen_rtx_PARALLEL ( mode, rtvec_alloc (2));
+		  XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
+						 NULL_RTX, const0_rtx);
+		  XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST ( VOIDmode,
+						 gen_rtx_REG ( mode, cum->regno),
+						 const0_rtx);
+		  return ret;
+		}
+	      break;
+	    }
+#endif
 	  int regno = cum->regno;
 
 	  /* Fastcall allocates the first two DWORD (SImode) or
-            smaller arguments to ECX and EDX if it isn't an
-            aggregate type .  */
+	    smaller arguments to ECX and EDX if it isn't an
+	    aggregate type .  */
 	  if (cum->fastcall)
 	    {
 	      if (mode == BLKmode
 		  || mode == DImode
 		  || (type && AGGREGATE_TYPE_P (type)))
-	        break;
+		break;
 
 	      /* ECX not EAX is the first allocated register.  */
 	      if (regno == AX_REG)
@@ -6967,38 +6965,37 @@ function_arg_32 (const CUMULATIVE_ARGS *cum, enum machine_mode mode,
 	    }
 	  return gen_rtx_REG (mode, regno);
 	}
-#endif
       break;
 
     case DFmode:
-#if defined TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok  */
-        if (cum->fpu_nregs && cum->optlink && cum->ec_slots)
-          {
-            /* Pass first four floating-point args in FPU registers */
-            ret = gen_rtx_PARALLEL (mode, rtvec_alloc (2));
-            XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
-                                           NULL_RTX, const0_rtx);
-            XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST (VOIDmode,
-                                           gen_rtx_REG ( mode, FIRST_FLOAT_REG + cum->fpu_regno),
-                                           const0_rtx);
-          }
-        break;
+#if defined TARGET_OPTLINK_DECL_ATTRIBUTES
+      if (cum->fpu_nregs && cum->optlink && cum->ec_slots)
+	{
+	  /* Pass first four floating-point args in FPU registers */
+	  rtx ret = gen_rtx_PARALLEL (mode, rtvec_alloc (2));
+	  XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
+					 NULL_RTX, const0_rtx);
+	  XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST (VOIDmode,
+					 gen_rtx_REG ( mode, FIRST_FLOAT_REG + cum->fpu_regno),
+					 const0_rtx);
+	  return ret;
+	}
 #endif
       if (cum->float_in_sse < 2)
 	break;
     case SFmode:
-#if defined TARGET_OPTLINK_DECL_ATTRIBUTES /* looks ok */
-        if (cum->fpu_nregs && cum->optlink && cum->ec_slots)
-          {
-            /* Pass first four floating-point args in FPU registers */
-            ret = gen_rtx_PARALLEL (mode, rtvec_alloc (2));
-            XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
-                                           NULL_RTX, const0_rtx);
-            XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST (VOIDmode,
-                                           gen_rtx_REG ( mode, FIRST_FLOAT_REG + cum->fpu_regno),
-                                           const0_rtx);
-          }
-        break;
+#if defined TARGET_OPTLINK_DECL_ATTRIBUTES
+      if (cum->fpu_nregs && cum->optlink && cum->ec_slots)
+	{
+	  /* Pass first four floating-point args in FPU registers */
+	  rtx ret = gen_rtx_PARALLEL (mode, rtvec_alloc (2));
+	  XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
+					 NULL_RTX, const0_rtx);
+	  XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST (VOIDmode,
+					 gen_rtx_REG ( mode, FIRST_FLOAT_REG + cum->fpu_regno),
+					 const0_rtx);
+	  return ret;
+	}
 #endif
       if (cum->float_in_sse < 1)
 	break;
@@ -7267,9 +7264,6 @@ ix86_compat_aligned_value_p (const_tree type)
        || mode == TFmode
        || mode == TCmode)
       && (!TYPE_USER_ALIGN (type) || TYPE_ALIGN (type) > 128))
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTESz
-          && !cum->optlink
-#endif
     return true;
   if (TYPE_ALIGN (type) < 128)
     return false;
