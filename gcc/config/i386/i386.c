@@ -4918,24 +4918,6 @@ init_cumulative_args (CUMULATIVE_ARGS *cum,  /* Argument info to initialize */
 
   if (!TARGET_64BIT)
     {
-#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
-      /* _Optlink calling convention says all args until the ellipsis
-         are passed in registers, and all varargs on the stack. */
-#else
-      /* If there are variable arguments, then we won't pass anything
-         in registers in 32-bit mode. */
-      if (stdarg_p (fntype))
-	{
-	  cum->nregs = 0;
-	  cum->sse_nregs = 0;
-	  cum->mmx_nregs = 0;
-	  cum->warn_avx = 0;
-	  cum->warn_sse = 0;
-	  cum->warn_mmx = 0;
-	  return;
-	}
-#endif
-
       /* Use ecx and edx registers if function has fastcall attribute,
 	 else look for regparm information.  */
       if (fntype)
@@ -4962,6 +4944,24 @@ init_cumulative_args (CUMULATIVE_ARGS *cum,  /* Argument info to initialize */
 	      else
 #endif
               cum->nregs = ix86_function_regparm (fntype, fndecl);
+	    }
+
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+	  /* _Optlink calling convention says all args until the ellipsis
+	     are passed in registers, and all varargs on the stack. */
+	  if (!cum->optlink)
+#endif
+	  /* If there are variable arguments, then we won't pass anything
+	     in registers in 32-bit mode. */
+	  if (stdarg_p (fntype))
+	    {
+	      cum->nregs = 0;
+	      cum->sse_nregs = 0;
+	      cum->mmx_nregs = 0;
+	      cum->warn_avx = 0;
+	      cum->warn_sse = 0;
+	      cum->warn_mmx = 0;
+	      return;
 	    }
 	}
       /* Set up the number of SSE registers used for passing SFmode
@@ -5849,11 +5849,10 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case V2DImode:
     case V4SFmode:
     case V2DFmode:
-      if (!type || !AGGREGATE_TYPE_P (type)
 #ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
-          && !cum->optlink
+      if (!cum->optlink)
 #endif
-        )
+      if (!type || !AGGREGATE_TYPE_P (type))
 	{
 	  cum->sse_words += words;
 	  cum->sse_nregs -= 1;
@@ -5871,11 +5870,10 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case V2SImode:
     case V2SFmode:
     case V1DImode:
-      if (!type || !AGGREGATE_TYPE_P (type)
 #ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
-          && !cum->optlink
+      if (!cum->optlink)
 #endif
-        )
+      if (!type || !AGGREGATE_TYPE_P (type))
 	{
 	  cum->mmx_words += words;
 	  cum->mmx_nregs -= 1;
@@ -5969,7 +5967,7 @@ function_arg_advance (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 
 static rtx
 function_arg_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
-		 enum machine_mode orig_mode, tree type,
+		 enum machine_mode orig_mode, tree type, int ARG_UNUSED (named),
 		 HOST_WIDE_INT bytes, HOST_WIDE_INT words)
 {
   static bool warnedsse, warnedmmx;
@@ -5980,11 +5978,13 @@ function_arg_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 
 #ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
   /* For optlink calling convention, don't pass anything other than
-     integral types and floats through registers. */
+     integral types and floats through registers. This also applies to
+     all varargs.  */
   if (!cum->optlink
-      || INTEGRAL_TYPE_P (type)
-      || POINTER_TYPE_P (type)
-      || (TREE_CODE (type) == REAL_TYPE))
+      || (named
+          && (INTEGRAL_TYPE_P (type)
+              || POINTER_TYPE_P (type)
+              || (TREE_CODE (type) == REAL_TYPE))))
 #endif
   switch (mode)
     {
@@ -6017,6 +6017,8 @@ function_arg_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
     case QImode:
       if (words <= cum->nregs)
 	{
+	  int regno = cum->regno;
+
 #ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
 	  if (cum->optlink)
 	    {
@@ -6030,15 +6032,13 @@ function_arg_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 		  XVECEXP (ret, 0, 0) = gen_rtx_EXPR_LIST ( VOIDmode,
 						 NULL_RTX, const0_rtx);
 		  XVECEXP (ret, 0, 1) = gen_rtx_EXPR_LIST ( VOIDmode,
-						 gen_rtx_REG ( mode, cum->regno),
+						 gen_rtx_REG ( mode, regno),
 						 const0_rtx);
 		  return ret;
 		}
 	      break;
 	    }
 #endif
-	  int regno = cum->regno;
-
 	  /* Fastcall allocates the first two DWORD (SImode) or
 	    smaller arguments to ECX and EDX if it isn't an
 	    aggregate type .  */
@@ -6263,7 +6263,7 @@ function_arg (CUMULATIVE_ARGS *cum, enum machine_mode omode,
   else if (TARGET_64BIT)
     return function_arg_64 (cum, mode, omode, type, named);
   else
-    return function_arg_32 (cum, mode, omode, type, bytes, words);
+    return function_arg_32 (cum, mode, omode, type, named, bytes, words);
 }
 
 /* A C expression that indicates when an argument must be passed by
