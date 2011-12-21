@@ -5637,6 +5637,27 @@ ix86_function_regparm (const_tree type, const_tree decl)
   else if ((ccvt & IX86_CALLCVT_THISCALL) != 0)
     return 1;
 
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+  if (lookup_attribute ("optlink", TYPE_ATTRIBUTES (type)))
+    {
+      if (decl && TREE_CODE (decl) == FUNCTION_DECL)
+	{
+	  /* We can't use _Optlink for nested functions as it may use
+             up to 3 regparms (see above about regparm(3)).  */
+	  if (!error_issued
+	      && decl_function_context (decl)
+	      && !DECL_NO_STATIC_CHAIN (decl))
+	    {
+	      error ("nested functions cannot use optlink attribute");
+	      error_issued = true;
+	      return 0;
+	    }
+	}
+
+      return 3;
+    }
+#endif
+
   /* Use register calling convention for local functions when possible.  */
   if (decl
       && TREE_CODE (decl) == FUNCTION_DECL
@@ -7159,7 +7180,7 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 	{
 	  /* If out of eyecatcher slots, do nothing */
 	  if (!cum->ec_slots)
-	    return;
+	    break;
 
 	  if (INTEGRAL_TYPE_P (type)
 	   || POINTER_TYPE_P (type))
@@ -7185,7 +7206,7 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 
 	      /* The case with ec_slots <= 0 will be catched a little lates */
 	      if (cum->ec_slots > 0)
-		return;
+		break;
 	    }
 	  else
 	    {
@@ -7193,7 +7214,7 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 		 Pass it on the stack but count its size in eyecatcher. */
 	      cum->ec_slots -= words;
 	      if (cum->ec_slots > 0)
-		return;
+		break;
 	    }
 
 	  /* If we're out of eyecatcher slots, pass the arg on the stack */
@@ -7202,7 +7223,7 @@ function_arg_advance_32 (CUMULATIVE_ARGS *cum, enum machine_mode mode,
 	      cum->ec_slots = 0;
 	      cum->nregs = 0;
 	      cum->fpu_nregs = 0;
-	      return;
+	      break;
 	    }
 	}
 #endif
