@@ -68,7 +68,9 @@ const struct pex_funcs funcs =
   NULL, /* fdopenr */
   NULL, /* fdopenw */
 #ifdef __EMX__
-  pex_djgpp_cleanup,
+  pex_djgpp_cleanup
+#else
+  NULL  /* cleanup */
 #endif
 };
 
