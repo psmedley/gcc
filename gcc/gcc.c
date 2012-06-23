@@ -3968,6 +3968,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
 	      else
 		argv[i] = convert_filename (argv[i], ! have_c, 0);
 #endif
+#endif
 	      goto normal_switch;
 
 	    default:
