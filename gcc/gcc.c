@@ -3903,6 +3903,7 @@ process_command (unsigned int decoded_options_count,
 	{
 	  compare_debug = 3;
 	  compare_debug_opt = "-gtoggle";
+
 	}
     }
   else if (compare_debug < 0)
@@ -6857,23 +6858,18 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
      with %b in LINK_SPEC. We use the first input file that we can find
      a compiler to compile it instead of using infiles.language since for
      languages other than C we use aliases that we then lookup later.  */
-#ifndef __EMX__ /* This code fails on OS/2 - revert to the GCC 3.4.6 code */
   if (n_infiles > 0)
     {
       int i;
 
       for (i = 0; i < n_infiles ; i++)
 	if (infiles[i].incompiler
-	    || (infiles[i].language && infiles[i].language[0] != '*'))
+	    || (!infiles[i].language || infiles[i].language[0] != '*'))
 	  {
 	    set_input (infiles[i].name);
 	    break;
 	  }
     }
-#else
-  if (n_infiles > 0)
-    set_input (infiles[0].name);
-#endif
 
   if (!seen_error ())
     {
