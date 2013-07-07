@@ -407,21 +407,19 @@ decl_attributes (tree *node, tree attributes, int flags)
 
       if (spec->handler != NULL)
         {
-          bool set_type_context = 0;
-          if (anode != node && TYPE_P (*anode) && !TYPE_CONTEXT (*anode))
-            {
-              /* We replaced decl with its type (see above), supply the replaced
-                 decl to the handler by abusing the context field.  This is used
-                 by handlers of some targets to alter function decls depending
-                 on function type attributes.  */
-              set_type_context = true;
-              TYPE_CONTEXT (*anode) = *node;
-            }
-          returned_attrs = chainon ((*spec->handler) (anode, name, args,
-                                                      flags, &no_add_attrs),
+          /* We may have replaced decl with its type (see above).  Supply the
+             original decl to the handler following the replacing type.  This is
+             used by handlers of some targets to alter function decls depending
+             on function type attributes.  */
+          tree nodes[2];
+          nodes[0] = *anode;
+          nodes[1] = *node;
+          returned_attrs = chainon ((*spec->handler) (nodes, name, args,
+                                                      flags & ATTR_FLAG_HANDLER_DECL_FOLLOWS,
+                                                      &no_add_attrs),
                                     returned_attrs);
-          if (set_type_context)
-              TYPE_CONTEXT (*anode) = NULL_TREE;
+          /* The node could be changed by the handler, preserve the change.  */
+          *anode = nodes[0];
         }
 
       /* Layout the decl in case anything changed.  */
