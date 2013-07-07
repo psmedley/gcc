@@ -385,7 +385,7 @@ decl_attributes (tree *node, tree attributes, int flags)
           nodes[0] = *anode;
           nodes[1] = *node;
           returned_attrs = chainon ((*spec->handler) (nodes, name, args,
-                                                      flags & ATTR_FLAG_HANDLER_DECL_FOLLOWS,
+                                                      flags | ATTR_FLAG_HANDLER_DECL_FOLLOWS,
                                                       &no_add_attrs),
                                     returned_attrs);
           /* The node could be changed by the handler, preserve the change.  */
