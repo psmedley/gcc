@@ -616,7 +616,11 @@ enum attribute_flags {
      are not in fact compatible with the function type.  */
   ATTR_FLAG_BUILT_IN = 16,
   /* A given attribute has been parsed as a C++-11 attribute.  */
-  ATTR_FLAG_CXX11 = 32
+  ATTR_FLAG_CXX11 = 32,
+  /* The attribute handler's node argument is a pointer to the first element
+     of the array of two nodes where the first one is the TYPE node and the
+     second one is the DECL that it replaces.  */
+  ATTR_FLAG_HANDLER_DECL_FOLLOWS = 256
 };
 
 /* Types used to represent sizes.  */
@@ -1648,8 +1652,7 @@ struct attribute_spec {
   bool type_required;
   /* Whether this attribute requires a function (or method) type.  If it does,
      it will be passed from a function pointer type to the target type,
-     and from a function return type (which is not itself a function
-     pointer type) to the function type.  */
+     and from a function return type to the function type.  */
   bool function_type_required;
   /* Function to handle this attribute.  NODE points to the node to which
      the attribute is to be applied.  If a DECL, it should be modified in

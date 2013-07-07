@@ -556,6 +556,17 @@ decl_attributes (tree *node, tree attributes, int flags)
 	}
 
       if (spec->handler != NULL)
+#if 0
+	{
+	  int cxx11_flag =
+	    cxx11_attribute_p (a) ? ATTR_FLAG_CXX11 : 0;
+
+	  returned_attrs = chainon ((*spec->handler) (anode, name, args,
+						      flags|cxx11_flag,
+						      &no_add_attrs),
+				    returned_attrs);
+	}
+#else
         {
 	  int cxx11_flag =
 	    cxx11_attribute_p (a) ? ATTR_FLAG_CXX11 : 0;
@@ -574,6 +585,7 @@ decl_attributes (tree *node, tree attributes, int flags)
           /* The node could be changed by the handler, preserve the change.  */
           *anode = nodes[0];
         }
+#endif
 
       /* Layout the decl in case anything changed.  */
       if (spec->type_required && DECL_P (*node)

@@ -5343,7 +5343,7 @@ ix86_function_ok_for_sibcall (tree decl, tree exp)
 static tree
 ix86_handle_cconv_attribute (tree *node, tree name,
 				   tree args,
-				   int flags ATTRIBUTE_UNUSED,
+				   int flags,
 				   bool *no_add_attrs)
 {
   if (TREE_CODE (*node) != FUNCTION_TYPE
@@ -5487,11 +5487,11 @@ ix86_handle_cconv_attribute (tree *node, tree name,
       is_attribute_p ("stdcall", name) ||
       is_attribute_p ("cdecl", name))
     {
-      if (TREE_CODE (*node) == FUNCTION_TYPE && TYPE_CONTEXT (*node) != NULL_TREE)
+      if (TREE_CODE (*node) == FUNCTION_TYPE && (flags & ATTR_FLAG_HANDLER_DECL_FOLLOWS))
         {
-          tree ctx = TYPE_CONTEXT (*node);
-          if (TREE_CODE (ctx) == FUNCTION_DECL && DECL_LANG_SPECIFIC (ctx))
-            SET_DECL_LANGUAGE (ctx, lang_c);
+          tree decl = node[1];
+          if (TREE_CODE (decl) == FUNCTION_DECL && DECL_LANG_SPECIFIC (decl))
+            SET_DECL_LANGUAGE (decl, lang_c);
         }
     }
 #endif
