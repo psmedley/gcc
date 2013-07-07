@@ -4145,7 +4145,11 @@ enum attribute_flags
   /* The attributes are being applied by default to a library function whose
      name indicates known behavior, and should be silently ignored if they
      are not in fact compatible with the function type.  */
-  ATTR_FLAG_BUILT_IN = 16
+  ATTR_FLAG_BUILT_IN = 16,
+  /* The attribute handler's node argument is a pointer to the first element
+     of the array of two nodes where the first one is the TYPE node and the
+     second one is the DECL that it replaces.  */
+  ATTR_FLAG_HANDLER_DECL_FOLLOWS = 256
 };
 
 /* Default versions of target-overridable functions.  */
