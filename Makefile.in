@@ -43100,7 +43100,8 @@ configure-target-libstdc++-v3:
 	rm -f no-such-file || : ; \
 	CONFIG_SITE=no-such-file $(SHELL) $${libsrcdir}/configure \
 	  $(TARGET_CONFIGARGS) --build=${build_alias} --host=${target_alias} \
-	  --target=${target_alias} $${srcdiroption}  \
+	  --target=${target_alias} $${srcdiroption} ; \
+	  cp -p $${topdir}/libtool.os2 ./libtool \
 	  || exit 1
 @endif target-libstdc++-v3
 
