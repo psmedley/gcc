@@ -6828,11 +6828,7 @@ main (int argc, char **argv)
       int i;
 
       for (i = 0; i < n_infiles ; i++)
-#ifndef __EMX__
 	if (infiles[i].language && infiles[i].language[0] != '*')
-#else
-	if (!infiles[i].language || infiles[i].language[0] != '*')
-#endif
 	  {
 	    set_input (infiles[i].name);
 	    break;
