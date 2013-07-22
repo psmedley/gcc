@@ -1,4 +1,4 @@
-#! ash.exe
+#! /bin/sh
 
 # libtool - Provide generalized library-building support services.
 # Generated automatically by ltconfig (GNU libtool 1.4a-GCC3.0 (1.641.2.256 2001/05/28 20:09:07 with GCC-local changes))
@@ -56,7 +56,7 @@ available_tags=" CXX"
 LTCONFIG_VERSION="1.4a-GCC3.0"
 
 # Shell to use when invoking shell scripts.
-SHELL="ash.exe"
+SHELL="${SHELL-sh}"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=yes
@@ -6072,7 +6072,7 @@ build_old_libs=`case $build_libtool_libs in yes) echo no;; *) echo yes;; esac`
 LTCONFIG_VERSION="1.4a-GCC3.0"
 
 # Shell to use when invoking shell scripts.
-SHELL="ash.exe"
+SHELL="${SHELL-sh}"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=no
