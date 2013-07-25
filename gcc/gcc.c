@@ -6828,7 +6828,7 @@ main (int argc, char **argv)
       int i;
 
       for (i = 0; i < n_infiles ; i++)
-	if (infiles[i].language && infiles[i].language[0] != '*')
+	if (!infiles[i].language || infiles[i].language[0] != '*')
 	  {
 	    set_input (infiles[i].name);
 	    break;
