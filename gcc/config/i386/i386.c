@@ -5366,11 +5366,22 @@ ix86_handle_cconv_attribute (tree *node, tree name,
         {
 	  error ("fastcall and regparm attributes are not compatible");
 	}
-
       if (lookup_attribute ("thiscall", TYPE_ATTRIBUTES (*node)))
 	{
 	  error ("regparam and thiscall attributes are not compatible");
 	}
+#ifdef TARGET_SYSTEM_DECL_ATTRIBUTES
+      if (lookup_attribute ("system", TYPE_ATTRIBUTES (*node)))
+        {
+	  error ("system and regparm attributes are not compatible");
+	}
+#endif
+#ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
+      if (lookup_attribute ("optlink", TYPE_ATTRIBUTES (*node)))
+        {
+	  error ("optlink and regparm attributes are not compatible");
+	}
+#endif
 
       cst = TREE_VALUE (args);
       if (TREE_CODE (cst) != INTEGER_CST)
@@ -5640,6 +5651,7 @@ ix86_function_regparm (const_tree type, const_tree decl)
 #ifdef TARGET_OPTLINK_DECL_ATTRIBUTES
   if (lookup_attribute ("optlink", TYPE_ATTRIBUTES (type)))
     {
+#if 0 /* removed from regparm for GCC 4.5.x, remove for Optlink too */
       if (decl && TREE_CODE (decl) == FUNCTION_DECL)
 	{
 	  /* We can't use _Optlink for nested functions as it may use
@@ -5653,7 +5665,7 @@ ix86_function_regparm (const_tree type, const_tree decl)
 	      return 0;
 	    }
 	}
-
+#endif
       return 3;
     }
 #endif
