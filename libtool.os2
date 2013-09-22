@@ -39,7 +39,7 @@ available_tags=" CXX"
 ### BEGIN LIBTOOL CONFIG
 # Libtool was configured as follows, on host mail.smedley.info:
 #
-# AR="ar.exe" AR_FLAGS="" LTCC=" U:/DEV/gcc-3.4.6/gcc/xgcc -BU:/DEV/gcc-3.4.6/gcc/ -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include" CC=" U:/DEV/gcc-3.4.6/gcc/xgcc -BU:/DEV/gcc-3.4.6/gcc/ -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include" \
+# AR="ar.exe" AR_FLAGS="" LTCC=" gcc -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include" CC=" gcc -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include" \
 # CFLAGS="-O2 -D__EMX__ -DOS2  -D__ST_MT_ERRNO__ -O2" CPPFLAGS="-O2 -D__EMX__ -DOS2  -D__ST_MT_ERRNO__ -O2" \
 # MAGIC_CMD="" LD="ld" LDFLAGS="" LIBS="" \
 # LN_S="ln -s" NM="nm" RANLIB="echo" STRIP=":" \
@@ -82,10 +82,10 @@ AR="ar.exe"
 AR_FLAGS="cru"
 
 # A C compiler.
-LTCC=" U:/DEV/gcc-3.4.6/gcc/xgcc -BU:/DEV/gcc-3.4.6/gcc/ -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
+LTCC="gcc -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
 
 # A language-specific compiler.
-CC=" U:/DEV/gcc-3.4.6/gcc/xgcc -BU:/DEV/gcc-3.4.6/gcc/ -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
+CC="gcc -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
 
 # Is the compiler the GNU C compiler?
 with_gcc=yes
@@ -6098,10 +6098,10 @@ AR="ar.exe"
 AR_FLAGS="cru"
 
 # A C compiler.
-LTCC=" U:/DEV/gcc-3.4.6/gcc/xgcc -BU:/DEV/gcc-3.4.6/gcc/ -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
+LTCC="gcc -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
 
 # A language-specific compiler.
-CC=" U:/DEV/gcc-3.4.6/gcc/xgcc -shared-libgcc -BU:/DEV/gcc-3.4.6/gcc/ -nostdinc++ -LU:/DEV/gcc-3.4.6/i386-pc-os2-emx/libstdc++-v3/src -LU:/DEV/gcc-3.4.6/i386-pc-os2-emx/libstdc++-v3/src/.libs -B/usr/local/i386-pc-os2-emx/bin/ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
+CC="gcc -shared-libgcc -nostdinc++ -B/usr/local/i386-pc-os2-emx/lib/ -isystem /usr/local/i386-pc-os2-emx/include -isystem /usr/local/i386-pc-os2-emx/sys-include"
 
 # Is the compiler the GNU C compiler?
 with_gcc=yes
@@ -6244,11 +6244,11 @@ predeps=""
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdeps="-lc_alias -lc_dll -los2 -lgcc_so_d -lc_alias -lc_dll -los2 -lgcc_so_d -lc_alias -lc_dll -los2 -lgcc_so_d -lc_alias -lc_dll -los2 -lgcc_so_d -lc_alias -lc_dll -los2"
+postdeps=""
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-LU:/DEV/gcc-3.4.6/i386-pc-os2-emx/libstdc++-v3/src -LU:/DEV/gcc-3.4.6/i386-pc-os2-emx/libstdc++-v3/src/.libs -LU:/DEV/gcc-3.4.6/gcc -Lu:/usr/local/lib -LU:/usr/local/lib/gcc/i386-pc-os2-emx/3.4.6 -LU:/usr/lib -Lu:/extras/lib -Lu:/dev/qt/trunk/lib -Lu:/openldap/lib -Lu:/cups/lib -L/usr/local/lib/gcc/i386-pc-os2-emx/3.4.6/../../.."
+compiler_lib_search_path=""
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method="unknown"
