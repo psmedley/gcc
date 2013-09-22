@@ -39,10 +39,10 @@ along with GCC; see the file COPYING3.  If not see
 #include "recog.h"
 #include "expr.h"
 #include "optabs.h"
-#include "diagnostic-core.h"
 #ifdef __EMX__
 #include "cp/cp-tree.h" /* we need SET_DECL_LANGUAGE */
 #endif
+#include "diagnostic-core.h"
 #include "toplev.h"
 #include "basic-block.h"
 #include "ggc.h"
