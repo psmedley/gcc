@@ -38,8 +38,6 @@ Boston, MA 02111-1307, USA.  */
 
 #define DLL_IMPORT_EXPORT_PREFIX '#'
 
-#define TARGET_MANGLE_DECL_ASSEMBLER_NAME i386_emx_mangle_decl_assembler_name
-
 /* Debug formats */
 #define DEFAULT_GDB_EXTENSIONS          1
 #define DBX_DEBUGGING_INFO              1
@@ -65,9 +63,6 @@ Boston, MA 02111-1307, USA.  */
 
 /* Don't provide default values for __CTOR_LIST__ and __DTOR_LIST__ in libgcc */
 #define CTOR_LISTS_DEFINED_EXTERNALLY
-
-/* Enable parsing of #pragma pack(push,<n>) and #pragma pack(pop).  */
-#define HANDLE_PRAGMA_PACK_PUSH_POP     1
 
 /* We support weak symbols (in the limited way OS/2 supports them).
    This also enables #pragma weak handling.  */
@@ -223,6 +218,14 @@ do {						\
 #endif
 
 
+/* Use `#' instead of `/' as assembler comments */
+#undef ASM_COMMENT_START
+#define ASM_COMMENT_START               "#"
+#undef ASM_APP_ON
+#define ASM_APP_ON                      "#APP\n"
+#undef ASM_APP_OFF
+#define ASM_APP_OFF                     "#NO_APP\n"
+
 /* Output a common block.  */
 #if 1
 #undef ASM_OUTPUT_ALIGNED_DECL_COMMON
@@ -265,15 +268,6 @@ do {							\
 /* Output function declarations at the end of the file.  */
 #undef TARGET_ASM_FILE_END
 #define TARGET_ASM_FILE_END i386_emx_file_end
-
-
-/* Use `#' instead of `/' as assembler comments */
-#undef ASM_COMMENT_START
-#define ASM_COMMENT_START               "#"
-#undef ASM_APP_ON
-#define ASM_APP_ON                      "#APP\n"
-#undef ASM_APP_OFF
-#define ASM_APP_OFF                     "#NO_APP\n"
 
 #if 1
 /* This macro gets just the user-specified name out of the string
@@ -334,10 +328,6 @@ extern void i386_emx_encode_section_info PARAMS ((tree, rtx, int));
 #define TARGET_SUBTARGET_DEFAULT \
    (MASK_80387 | MASK_IEEE_FP | MASK_FLOAT_RETURNS | MASK_STACK_PROBE)
 
-
-/* The -Zstack option takes an argument. */
-#define WORD_SWITCH_TAKES_ARG(STR) (DEFAULT_WORD_SWITCH_TAKES_ARG (STR) \
-                                    || !strcmp (STR, "Zstack"))
 
 /* Don't allow flag_pic to propagate since gas may produce invalid code
    otherwise.  */
@@ -444,7 +434,7 @@ do {									\
 
 /* Provide extra args to the linker and extra switch-translations.  */
 #define LINK_SPEC                                                              \
-  "%{Zexe} %{Zstack*} %{Zmap*} %{Zsym} %{Zdll} %{shared:-Zdll} %{static:-static}" \
+  "%{Zexe} %{Zstack*} %{Zlinker*} %{Zmap*} %{Zsym} %{Zdll} %{shared:-Zdll} %{static:-static}" \
   "%{!o*:-o %b%{Zdll|shared:.dll}%{!Zdll:%{!shared:%{!Zexe:.exe}}}} "          \
   "%{static:%{Zcrtdll*:%e-static and -Zcrtdll are incompatible}}"              \
   "%{Zomf:%{Zaout:%e-Zomf and -Zaout are incompatible}}"                       \
@@ -481,6 +471,10 @@ do {									\
   " %{Zbin-files:binmode%O%{Zomf:bj}%s}"                                       \
   " %{Zsmall-conv:smallcnv%O%{Zomf:bj}%s}}"
 
+/* the -pthread flag is not recognized.  */
+#undef GOMP_SELF_SPECS
+#define GOMP_SELF_SPECS ""
+
 #if 0
 /* Prefer symbols in %L (-lc) over %G (libcAB.dll includes gcc3XY.dll).
    For the GNU linker we need to repeat everything as it doesn't
@@ -490,6 +484,7 @@ do {									\
 #define LINK_GCC_C_SEQUENCE_SPEC        "%G %L %{!Zomf:%G %L %G %L %G %L}"
 #endif
 
+#undef ENDFILE_SPEC
 #define ENDFILE_SPEC                    "%{Zomf:-lend}"
 
 /* Override the default linker program (collect2).  */
