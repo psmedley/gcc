@@ -6170,6 +6170,12 @@ main (int argc, char **argv)
   if (argv != old_argv)
     at_file_supplied = true;
 
+#ifdef __OS2__
+    _envargs (&argc, (char ***)&argv, "GCCOPT");
+    _response (&argc, (char ***)&argv);
+    _wildcard (&argc, (char ***)&argv);
+#endif
+
   /* Register the language-independent parameters.  */
   global_init_params ();
   finish_params ();
