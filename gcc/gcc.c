@@ -47,6 +47,12 @@ compilation is specified by a string called a "spec".  */
 #include "vec.h"
 #include "filenames.h"
 
+#ifdef __OS2__
+/* No we don't have GNU LD, no matter what configure thinks! */
+#undef HAVE_GNU_LD
+#define HAVE_GNU_LD 0
+#endif
+
 /* By default there is no special suffix for target executables.  */
 /* FIXME: when autoconf is fixed, remove the host check - dj */
 #if defined(TARGET_EXECUTABLE_SUFFIX) && defined(HOST_EXECUTABLE_SUFFIX)
