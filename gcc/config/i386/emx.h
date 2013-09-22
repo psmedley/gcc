@@ -3,7 +3,7 @@
    Copyright (C) 2000(?)-2003 Andrew Zabolotny
    Copyright (C) 2003 InnoTek Systemberatung GmbH
    Copyright (C) 2003-2004 Knut St. Osmundsen
-   Modified for GCC 4.x by Paul Smedley 2008-2011
+   Modified for GCC 4.x by Paul Smedley 2008-2013
 
 This file is part of the InnoTek port of GNU CC.
 
@@ -105,6 +105,11 @@ Boston, MA 02111-1307, USA.  */
 #define DWARF2_UNWIND_INFO              1
 
 #define TARGET_ASM_INIT_SECTIONS i386_emx_init_sections
+
+extern section *emx_function_section (tree decl ATTRIBUTE_UNUSED,
+                                      enum node_frequency freq ATTRIBUTE_UNUSED,
+                                      bool startup ATTRIBUTE_UNUSED,
+                                      bool exit ATTRIBUTE_UNUSED);
 
 /* Terminate DWARF frame unwind info with a closing zero */
 #define DWARF2_FRAMEINFO_NULL_TERMINATED 1
