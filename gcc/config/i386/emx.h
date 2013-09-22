@@ -240,7 +240,6 @@ do {						\
 #define ASM_APP_OFF                     "#NO_APP\n"
 
 /* Output a common block.  */
-#else
 #undef ASM_OUTPUT_ALIGNED_DECL_COMMON
 #define ASM_OUTPUT_ALIGNED_DECL_COMMON \
   i386_emx_asm_output_aligned_decl_common
