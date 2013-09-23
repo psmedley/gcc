@@ -114,10 +114,6 @@ Boston, MA 02111-1307, USA.  */
 
 #define TARGET_ASM_INIT_SECTIONS i386_emx_init_sections
 
-extern section *emx_function_section (tree decl ATTRIBUTE_UNUSED,
-                                      enum node_frequency freq ATTRIBUTE_UNUSED,
-                                      bool startup ATTRIBUTE_UNUSED,
-                                      bool exit ATTRIBUTE_UNUSED);
 #undef  TARGET_ASM_FUNCTION_SECTION
 #define TARGET_ASM_FUNCTION_SECTION emx_function_section
 #define TARGET_HAVE_NAMED_SECTIONS false
