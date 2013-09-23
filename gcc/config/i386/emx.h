@@ -118,6 +118,9 @@ extern section *emx_function_section (tree decl ATTRIBUTE_UNUSED,
                                       enum node_frequency freq ATTRIBUTE_UNUSED,
                                       bool startup ATTRIBUTE_UNUSED,
                                       bool exit ATTRIBUTE_UNUSED);
+#undef  TARGET_ASM_FUNCTION_SECTION
+#define TARGET_ASM_FUNCTION_SECTION emx_function_section
+#define TARGET_HAVE_NAMED_SECTIONS false
 
 /* Terminate DWARF frame unwind info with a closing zero */
 #define DWARF2_FRAMEINFO_NULL_TERMINATED 1
