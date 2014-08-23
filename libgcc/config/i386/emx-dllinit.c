@@ -3,6 +3,7 @@
    duplicate startup code around. The right startup code is in libc. */
 
 extern int _CRT_init (void);
+extern void _CRT_term (void); 
 extern void __ctordtorInit (void);
 extern void __ctordtorTerm (void);
 
@@ -17,6 +18,7 @@ unsigned long _System _DLL_InitTerm (unsigned long mod_handle, unsigned long fla
       return 1;
     case 1:
       __ctordtorTerm ();
+      _CRT_term();
       return 1;
   }
   return 0;
