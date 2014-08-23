@@ -201,7 +201,6 @@ dump_op (dump_info_p di, tree t)
   }
 }
 
-<<<<<<< HEAD
 /* Dump information common to statements from STMT.  */
 
 static void
