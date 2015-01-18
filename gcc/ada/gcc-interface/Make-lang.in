@@ -36,7 +36,7 @@
 # - the compiler proper (eg: cc1plus)
 # - define the names for selecting the language in LANGUAGES.
 # tool definitions
-CP = cp -p
+CP = cp.exe -p
 ECHO = echo
 MV = mv
 MKDIR = mkdir -p
