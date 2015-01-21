@@ -414,9 +414,9 @@ typedef struct _loop_vec_info {
 #define LOOP_VINFO_SCALAR_LOOP(L)	   (L)->scalar_loop
 
 #define LOOP_REQUIRES_VERSIONING_FOR_ALIGNMENT(L) \
-  (L)->may_misalign_stmts.length () > 0
+  ((L)->may_misalign_stmts.length () > 0)
 #define LOOP_REQUIRES_VERSIONING_FOR_ALIAS(L)     \
-  (L)->may_alias_ddrs.length () > 0
+  ((L)->may_alias_ddrs.length () > 0)
 
 #define LOOP_VINFO_NITERS_KNOWN_P(L)          \
   (tree_fits_shwi_p ((L)->num_iters) && tree_to_shwi ((L)->num_iters) > 0)
@@ -1057,10 +1057,12 @@ extern bool vect_analyze_data_ref_accesses (loop_vec_info, bb_vec_info);
 extern bool vect_prune_runtime_alias_test_list (loop_vec_info);
 extern tree vect_check_gather (gimple, loop_vec_info, tree *, tree *,
 			       int *);
-extern bool vect_analyze_data_refs (loop_vec_info, bb_vec_info, int *);
+extern bool vect_analyze_data_refs (loop_vec_info, bb_vec_info, int *,
+				    unsigned *);
 extern tree vect_create_data_ref_ptr (gimple, tree, struct loop *, tree,
 				      tree *, gimple_stmt_iterator *,
-				      gimple *, bool, bool *);
+				      gimple *, bool, bool *,
+				      tree = NULL_TREE);
 extern tree bump_vector_ptr (tree, gimple, gimple_stmt_iterator *, gimple, tree);
 extern tree vect_create_destination_var (tree, tree);
 extern bool vect_grouped_store_supported (tree, unsigned HOST_WIDE_INT);
@@ -1077,7 +1079,8 @@ extern void vect_transform_grouped_load (gimple, vec<tree> , int,
 extern void vect_record_grouped_load_vectors (gimple, vec<tree> );
 extern tree vect_get_new_vect_var (tree, enum vect_var_kind, const char *);
 extern tree vect_create_addr_base_for_vector_ref (gimple, gimple_seq *,
-                                                  tree, struct loop *);
+						  tree, struct loop *,
+						  tree = NULL_TREE);
 
 /* In tree-vect-loop.c.  */
 /* FORNOW: Used in tree-parloops.c.  */
@@ -1107,7 +1110,7 @@ extern bool vect_transform_slp_perm_load (slp_tree, vec<tree> ,
                                           slp_instance, bool);
 extern bool vect_schedule_slp (loop_vec_info, bb_vec_info);
 extern void vect_update_slp_costs_according_to_vf (loop_vec_info);
-extern bool vect_analyze_slp (loop_vec_info, bb_vec_info);
+extern bool vect_analyze_slp (loop_vec_info, bb_vec_info, unsigned);
 extern bool vect_make_slp_decision (loop_vec_info);
 extern void vect_detect_hybrid_slp (loop_vec_info);
 extern void vect_get_slp_defs (vec<tree> , slp_tree,

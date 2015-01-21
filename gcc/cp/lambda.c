@@ -201,6 +201,14 @@ lambda_function (tree lambda)
   return lambda;
 }
 
+static inline bool
+is_this (tree t)
+{
+  return ((TREE_CODE (t) == PARM_DECL
+	   || TREE_CODE (t) == VAR_DECL)
+	  && DECL_NAME (t) == this_identifier);
+}
+
 /* Returns the type to use for the FIELD_DECL corresponding to the
    capture of EXPR.
    The caller should add REFERENCE_TYPE for capture by reference.  */
@@ -216,8 +224,9 @@ lambda_capture_field_type (tree expr, bool explicit_init_p)
     }
   else
     type = non_reference (unlowered_expr_type (expr));
-  if (!type || WILDCARD_TYPE_P (type) || type_uses_auto (type)
-      || DECL_PACK_P (expr))
+  if (type_dependent_expression_p (expr)
+      && !is_this (tree_strip_nop_conversions (expr))
+      && !array_of_runtime_bound_p (type))
     {
       type = cxx_make_type (DECLTYPE_TYPE);
       DECLTYPE_TYPE_EXPR (type) = expr;
@@ -811,6 +820,7 @@ void
 maybe_add_lambda_conv_op (tree type)
 {
   bool nested = (current_function_decl != NULL_TREE);
+  bool nested_def = decl_function_context (TYPE_MAIN_DECL (type));
   tree callop = lambda_function (type);
 
   if (LAMBDA_EXPR_CAPTURE_LIST (CLASSTYPE_LAMBDA_EXPR (type)) != NULL_TREE)
@@ -963,7 +973,7 @@ maybe_add_lambda_conv_op (tree type)
   DECL_NOT_REALLY_EXTERN (fn) = 1;
   DECL_DECLARED_INLINE_P (fn) = 1;
   DECL_ARGUMENTS (fn) = build_this_parm (fntype, TYPE_QUAL_CONST);
-  if (nested)
+  if (nested_def)
     DECL_INTERFACE_KNOWN (fn) = 1;
 
   if (generic_lambda_p)
@@ -1003,7 +1013,7 @@ maybe_add_lambda_conv_op (tree type)
       DECL_NAME (arg) = NULL_TREE;
       DECL_CONTEXT (arg) = fn;
     }
-  if (nested)
+  if (nested_def)
     DECL_INTERFACE_KNOWN (fn) = 1;
 
   if (generic_lambda_p)

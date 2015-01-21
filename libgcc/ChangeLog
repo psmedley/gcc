@@ -1,3 +1,84 @@
+2014-10-30  Release Manager
+
+	* GCC 4.9.2 released.
+
+2014-10-26  John David Anglin  <danglin@gcc.gnu.org>
+
+	* config/pa/linux-unwind.h (pa32_read_access_ok): New function.
+	(pa32_fallback_frame_state): Use pa32_read_access_ok to check if
+	memory read accesses are ok.
+
+2014-10-22  Georg-Johann Lay  <avr@gjlay.de>
+
+	PR target/63223
+	* config/avr/lib1funcs.S (__do_global_dtors): Reverse execution
+	order to first...last.
+
+2014-09-18  Joseph Myers  <joseph@codesourcery.com>
+
+	* config/i386/sfp-machine.h (FP_TRAPPING_EXCEPTIONS): Treat clear
+	bits not set bits as indicating trapping exceptions.
+
+2014-09-11  Georg-Johann Lay  <avr@gjlay.de>
+
+	Backport from 2014-09-11 trunk r215152.
+
+	PR target/63223
+	* config/avr/libgcc.S (__tablejump2__): Rewrite to use RAMPZ, ELPM
+	and R24 as needed.  Make work for all devices and .text locations.
+	(__do_global_ctors, __do_global_dtors): Use word addresses.
+	(__tablejump__, __tablejump_elpm__): Remove functions.
+	* t-avr (LIB1ASMFUNCS): Remove _tablejump, _tablejump_elpm.
+	Add _tablejump2.
+	(XICALL, XIJMP): New macros.
+
+2014-08-04  Rohit  <rohitarulraj@freescale.com>
+
+	PR target/60102
+	* config/rs6000/linux-unwind.h (ppc_fallback_frame_state): Update
+	based on change in SPE high register numbers and 3 HTM registers.
+
+2014-07-16  Release Manager
+
+	* GCC 4.9.1 released.
+
+2014-05-27  Georg-Johann Lay  <avr@gjlay.de>
+
+	Backport from 2014-05-27 mainline r210322.
+
+	PR libgcc/61152
+	* config/arm/bpabi-lib.h (License): Add GCC Runtime Library Exception.
+
+2014-05-22  Nick Clifton  <nickc@redhat.com>
+
+	* config/msp430/t-msp430 (HOST_LIBGCC2_CFLAGS): Add
+	-mhwmult=none.
+
+2014-05-21  Maciej W. Rozycki  <macro@codesourcery.com>
+
+	Backport from mainline
+	2014-05-21  Maciej W. Rozycki  <macro@codesourcery.com>
+
+	PR libgcc/60166
+	* config/arm/sfp-machine.h (_FP_NANFRAC_H, _FP_NANFRAC_S)
+	(_FP_NANFRAC_D, _FP_NANSIGN_Q): Set the quiet bit.
+
+2014-05-15  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	Backport from mainline
+	2014-05-08  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	PR libgcc/61097
+	* config/t-slibgcc-sld: Only build and install libgcc-unwind.map
+	if --enable-shared.
+
+2014-04-30  Bernd Edlinger  <bernd.edlinger@hotmail.de>
+
+	Work around for current cygwin32 build problems.
+	* config/i386/cygming-crtbegin.c (__register_frame_info,
+	__deregister_frame_info, _Jv_RegisterClasses): Compile weak default
+	functions only for 64-bit systems.
+
 2014-04-22  Release Manager
 
 	* GCC 4.9.0 released.

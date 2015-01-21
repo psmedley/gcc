@@ -166,7 +166,9 @@ varpool_remove_node (varpool_node *node)
   /* Because we remove references from external functions before final compilation,
      we may end up removing useful constructors.
      FIXME: We probably want to trace boundaries better.  */
-  if ((init = ctor_for_folding (node->decl)) == error_mark_node)
+  if (cgraph_state == CGRAPH_LTO_STREAMING)
+    ;
+  else if ((init = ctor_for_folding (node->decl)) == error_mark_node)
     varpool_remove_initializer (node);
   else
     DECL_INITIAL (node->decl) = init;
@@ -302,7 +304,16 @@ ctor_for_folding (tree decl)
   if (DECL_VIRTUAL_P (real_decl))
     {
       gcc_checking_assert (TREE_READONLY (real_decl));
-      return DECL_INITIAL (real_decl);
+      if (DECL_INITIAL (real_decl))
+	return DECL_INITIAL (real_decl);
+      else
+	{
+	  /* The C++ front end creates VAR_DECLs for vtables of typeinfo
+	     classes not defined in the current TU so that it can refer
+	     to them from typeinfo objects.  Avoid returning NULL_TREE.  */
+	  gcc_checking_assert (!COMPLETE_TYPE_P (DECL_CONTEXT (real_decl)));
+	  return error_mark_node;
+	}
     }
 
   /* If there is no constructor, we have nothing to do.  */
@@ -318,8 +329,16 @@ ctor_for_folding (tree decl)
 
   /* Variables declared 'const' without an initializer
      have zero as the initializer if they may not be
-     overridden at link or run time.  */
-  if (!DECL_INITIAL (real_decl)
+     overridden at link or run time.
+
+     It is actually requirement for C++ compiler to optimize const variables
+     consistently. As a GNU extension, do not enfore this rule for user defined
+     weak variables, so we support interposition on:
+     static const int dummy = 0;
+     extern const int foo __attribute__((__weak__, __alias__("dummy"))); 
+   */
+  if ((!DECL_INITIAL (real_decl)
+       || (DECL_WEAK (decl) && !DECL_COMDAT (decl)))
       && (DECL_EXTERNAL (decl) || decl_replaceable_p (decl)))
     return error_mark_node;
 

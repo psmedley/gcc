@@ -37,6 +37,18 @@
 
 #include <bits/c++config.h>
 
+#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+# if defined (__UINT_LEAST16_TYPE__) && defined(__UINT_LEAST32_TYPE__)
+namespace std
+{
+  typedef __UINT_LEAST16_TYPE__ uint_least16_t;
+  typedef __UINT_LEAST32_TYPE__ uint_least32_t;
+}
+# else
+#  include <cstdint>
+# endif
+#endif
+
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
@@ -61,6 +73,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       typedef integral_constant<_Tp, __v>   type;
       constexpr operator value_type() const { return value; }
 #if __cplusplus > 201103L
+
+#define __cpp_lib_integral_constant_callable 201304
+
       constexpr value_type operator()() const { return value; }
 #endif
     };
@@ -468,6 +483,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct is_function<_Res(_ArgTypes......) const volatile &&>
     : public true_type { };
 
+#define __cpp_lib_is_null_pointer 201309
+
   template<typename>
     struct __is_null_pointer_helper
     : public false_type { };
@@ -621,6 +638,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct is_polymorphic
     : public integral_constant<bool, __is_polymorphic(_Tp)>
     { };
+
+#if __cplusplus > 201103L
+  /// is_final
+  #define __cpp_lib_is_final 201402L
+  template<typename _Tp>
+    struct is_final
+    : public integral_constant<bool, __is_final(_Tp)>
+    { };
+#endif
 
   /// is_abstract
   template<typename _Tp>
@@ -1439,6 +1465,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
 #if __cplusplus > 201103L
+
+#define __cpp_lib_transformation_trait_aliases 201304
+
   /// Alias template for remove_const
   template<typename _Tp>
     using remove_const_t = typename remove_const<_Tp>::type;
@@ -1583,6 +1612,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct __make_unsigned<long long>
     { typedef unsigned long long __type; };
 
+#if defined(_GLIBCXX_USE_WCHAR_T) && !defined(__WCHAR_UNSIGNED__)
+  template<>
+    struct __make_unsigned<wchar_t> : __make_unsigned<__WCHAR_TYPE__>
+    { };
+#endif
+
 #if !defined(__STRICT_ANSI__) && defined(_GLIBCXX_USE_INT128)
   template<>
     struct __make_unsigned<__int128>
@@ -1664,6 +1699,21 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<>
     struct __make_signed<unsigned long long>
     { typedef signed long long __type; };
+
+#if defined(_GLIBCXX_USE_WCHAR_T) && defined(__WCHAR_UNSIGNED__)
+  template<>
+    struct __make_signed<wchar_t> : __make_signed<__WCHAR_TYPE__>
+    { };
+#endif
+
+#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+  template<>
+    struct __make_signed<char16_t> : __make_signed<uint_least16_t>
+    { };
+  template<>
+    struct __make_signed<char32_t> : __make_signed<uint_least32_t>
+    { };
+#endif
 
 #if !defined(__STRICT_ANSI__) && defined(_GLIBCXX_USE_INT128)
   template<>
@@ -2010,6 +2060,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     class result_of;
 
   // Sfinae-friendly result_of implementation:
+
+#define __cpp_lib_result_of_sfinae 201210
 
   // [func.require] paragraph 1 bullet 1:
   struct __result_of_memfun_ref_impl
