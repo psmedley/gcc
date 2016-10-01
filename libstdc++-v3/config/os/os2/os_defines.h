@@ -38,4 +38,12 @@
 #define _GLIBCXX_USE_C99_LONG_LONG_CHECK 1
 #define _GLIBCXX_USE_C99_LONG_LONG_DYNAMIC (_GLIBCXX_USE_C99_DYNAMIC || !defined __LONG_LONG_SUPPORTED)
 
+// C++11 requires max_align_t of C11. See gcc/ginclude/stddef.h.
+#if __cplusplus >= 201103L
+typedef struct {
+  long long __max_align_ll __attribute__((__aligned__(__alignof__(long long))));
+  long double __max_align_ld __attribute__((__aligned__(__alignof__(long double))));
+} max_align_t;
+#endif
+
 #endif
